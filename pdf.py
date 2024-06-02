@@ -30,25 +30,26 @@ class PDF:
 
     def create(self):
         b = 0
-        f = open(self.filename, 'a')
-        f.write(self.header.version)
+        f = open(self.filename, 'ab')
+        f.write(bytes(self.header.version, 'utf-8') + b'\n')
         b = b + len(bytes(self.header.version, 'utf-8'))
         for x in self.body.objects:
-            f.write(x)
+            f.write(bytes(x, 'utf-8') + b'\n')
             b = b + len(bytes(x, 'utf-8'))
-        f.write('xref')
+        f.write(b'xref' + b'\n')
         for x in self.xref.table:
-            f.write(x.first_object + ' ' + x.num_entries)
+            f.write(bytes(x.first_object, 'utf-8') + b' ' + bytes(x.num_entries, 'utf-8') + b'\n')
             for y in x.entries:
-                f.write(y)
-        f.write('trailer')
-        f.write('<<')
+                f.write(bytes(y, 'utf-8') + b'\n')
+        f.write(b'trailer' + b'\n')
+        f.write(b'<<')
         for k in self.trailer.entries:
-            f.write('/' + k + ' ' + self.trailer.entries[k])
-        f.write('>>')
-        f.write('startxref')
-        f.write(str(b))
-        f.write("%%EOF")
+            f.write(b'/' + bytes(k, 'utf-8') + b' ' + bytes(self.trailer.entries[k], 'utf-8'))
+        f.write(b'\n')
+        f.write(b'>>' + b'\n')
+        f.write(b'startxref' + b'\n')
+        f.write(bytes(str(b), 'utf-8') + b'\n')
+        f.write(b"%%EOF" + b'\n')
         f.close
 
 class PDFReader:
@@ -60,14 +61,28 @@ class PDFReader:
         l = f.readlines()
         for line in l:
             print(line)
-        
+
+import os
+
+try:
+    os.remove('test.pdf')
+except Exception:
+    pass
+
 header = Header('%PDF-1.1')
 body = Body(['(hola)'])
 xref = Xref([XrefSubsection('0', '1', ['0000000000 65535 f \r\n'])])
-trailer = Trailer({'Size': '1', 'Root': '2 0 R'})
+trailer = Trailer({'Size': '1', 'Root': '1 0 R'})
 pdf = PDF(header, body, xref, trailer, 'test.pdf')
 
 pdf.create()
 
 reader = PDFReader('probe.pdf')
+reader.read()
+
+print('=====================================')
+print('=====================================')
+print('=====================================')
+
+reader = PDFReader('test.pdf')
 reader.read()
