@@ -47,6 +47,23 @@ class Dictionary:
         res += '>>'
         return res
 
+class Stream:
+    def __init__(self, d: Dictionary, s: str, number: int, gen: int) -> None:
+        self.d = d
+        self.s = s
+        self.number = number
+        self.gen = gen
+    
+    def value(self) -> str:
+        res = ''
+        res += f'{self.number} {self.gen} obj'
+        res += self.d.value()
+        res += '\n'
+        res += 'stream'
+        res += self.s
+        res += 'endstream'
+        res += 'endobj'
+        return res
 
 t = Name('Type')
 tv = Name('Example')
