@@ -1,3 +1,8 @@
+# Md2Pdf
+
+Export Markdown files to PDF.
+Implementing official PDF specification
+
 Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf
 
 ---
