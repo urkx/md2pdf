@@ -1,3 +1,8 @@
+# Md2Pdf
+
+Export Markdown files to PDF.
+Implementing official PDF specification
+
 Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf
 
 ---
@@ -34,7 +39,7 @@ Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008
     ```
     - Reference to an object: Object number, generation number, R keyword
     ```
-    12 0 R
+    10 0 R
     ```
     
 - Stream filters (no por el momento)
