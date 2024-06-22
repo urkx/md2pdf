@@ -38,14 +38,22 @@ class Array(PdfObject):
 class Dictionary(PdfObject):
     def __init__(self, val: dict) -> None:
         self.val = val
+    
+    def getDictItemValue(self, item):
+        if type(item) == type(PdfObject):
+            return item.value()
+        if type(item) == type(str):
+            return item
+        else:
+            return str(item)
 
     def value(self) -> str:
         res = '<<'
 
         for x in self.val.items():
-            res += x[0].value()
+            res += self.getDictItemValue(x[0])
             res += ' '
-            res += x[1].value()
+            res += self.getDictItemValue(x[1])
             res += '\n'
 
         res += '>>'
@@ -66,19 +74,28 @@ class IndirectObject:
 
 
 class Stream:
-    def __init__(self, d: Dictionary, s: str, number: int, gen: int) -> None:
+    class StreamDictionary(Dictionary):
+        def __init__(self, l: int) -> None:
+            super().__init__({'/Length': l})
+
+    def __init__(self, d: StreamDictionary, s: str) -> None:
+        if '/Length' not in d.val:
+            raise Exception('Stream Length must exist in stream dictionary')
+        if d.val['/Length'] != len(s):
+            raise Exception('Stream data length not match with Length value')
         self.d = d
         self.s = s
-        self.number = number
-        self.gen = gen
     
     def value(self) -> str:
         res = ''
         res += self.d.value()
         res += '\n'
         res += 'stream'
+        res += '\n'
         res += self.s
+        res += '\n'
         res += 'endstream'
+
         return res
 
 t = Name('Type')
@@ -90,5 +107,10 @@ vv = Integer(12)
 
 d = Dictionary({t: tv, st: stv, v: vv})
 io = IndirectObject(10, 0, d)
-print(io.value())
+
+streamDict = Stream.StreamDictionary(2)
+stream = Stream(streamDict, "AA")
+indirectStream = IndirectObject(1, 0, stream)
+
+print(indirectStream.value())
 
