@@ -37,7 +37,9 @@ Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008
     ```
     - All streams shall be indirect objects and the stream dictionary shall be a direct object.
     - Stream dictionary entries:
+      
     | Key | Value |
+    | ---- | ----- |
     | Length | (Required) Number of bytes of the stream |
     | Filter | (Optional) Name of the filter to apply to stream data |
     | DecodeParams | (Optional) Dictionary or array of dictionaries used by the filter specified in Filter |
