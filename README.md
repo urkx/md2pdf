@@ -67,7 +67,8 @@ Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008
 
 ### Filters
 
-- ASCIIHexDecode
+- ASCIIHexDecode, ASCII85Decode
+- LZWDecode, FlateDecode 
 
 ### File structure
 
