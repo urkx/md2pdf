@@ -65,6 +65,10 @@ Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008
     
 - Stream filters (no por el momento)
 
+### Filters
+
+- ASCIIHexDecode
+
 ### File structure
 
 - Header. One line identifying PDF specification of the file.
