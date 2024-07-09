@@ -46,16 +46,36 @@ class LZWDecode:
         self.t = 256
         self.b = 8
         d = {}
-        for i in range(self.t-1):
-            d[i] = i
+        for i in range(self.t):
+            d[chr(i)] = i
         self.b = self.b + 1 # Used all 8-bit possible characters
-        d[self.t] = '#' # End character
+        d['EOF'] = self.t # End character
         self.d = d
         
 
-    def encode(self, data: bytes) -> bytes:
-        print(self.d)
-        return data
+    def encode(self, data: bytearray) -> list:
+        '''
+            LZW Encoding process.
+
+            data: Bytes to encode
+        '''
+        idx = len(self.d)
+        res = []
+        secuencia = ""
+        for d in data:
+            aux = secuencia + chr(d)
+            if aux in self.d:
+                secuencia = aux
+            else:
+                res.append(self.d[secuencia])
+                self.d[aux] = idx
+                idx = idx + 1
+                secuencia = "" + chr(d)
+        if secuencia != '':
+            res.append(self.d[secuencia])
+        return res
+
+
 
 class Utils:
     '''
@@ -88,10 +108,9 @@ t = 'hola'
 te = ASCII85Decode.encode(bytes(t, 'ASCII'))
 td = ASCII85Decode.decode(te)
 
-print(te)
-print(td.decode('ASCII'))
-print(Utils.char_to_bin('a'))
+# print(te)
+# print(td.decode('ASCII'))
+# print(Utils.char_to_bin('a'))
 
 lzw = LZWDecode()
-d = lzw.encode(bytes('hola', 'ASCII'))
-print(d)
+print(lzw.encode(bytearray('1 axxxabbbxxbxaaa 1', 'ASCII')))
