@@ -57,7 +57,7 @@ class LZWDecode:
         '''
             LZW Encoding process.
 
-            data: Bytes to encode
+            data: ASCII-encoded bytes to encode
         '''
         idx = len(self.d)
         res = []
