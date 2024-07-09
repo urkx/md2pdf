@@ -54,8 +54,8 @@ class LZWDecode:
         
 
     def encode(self, data: bytes) -> bytes:
-
-        pass
+        print(self.d)
+        return data
 
 class Utils:
     '''
@@ -76,6 +76,13 @@ class Utils:
             str: Binary representation of data
         '''
         return ' '.join(map(bin, bytearray(data, 'ASCII')))
+    
+    @staticmethod
+    def char_to_bin(data: str) -> str:
+        '''
+            Returns 8-bit binary representation of a character
+        '''
+        return f'{ord(data):08b}'
 
 t = 'hola'
 te = ASCII85Decode.encode(bytes(t, 'ASCII'))
@@ -83,4 +90,8 @@ td = ASCII85Decode.decode(te)
 
 print(te)
 print(td.decode('ASCII'))
-print(Utils.str_to_binstr('a'))
+print(Utils.char_to_bin('a'))
+
+lzw = LZWDecode()
+d = lzw.encode(bytes('hola', 'ASCII'))
+print(d)
