@@ -57,7 +57,11 @@ class LZWDecode:
         '''
             LZW Encoding process.
 
+            Parameters:
             data: ASCII-encoded bytes to encode
+
+            Returns:
+            list: List containing the bytes to which input data has been encoded.
         '''
         idx = len(self.d)
         res = []
@@ -113,4 +117,4 @@ td = ASCII85Decode.decode(te)
 # print(Utils.char_to_bin('a'))
 
 lzw = LZWDecode()
-print(lzw.encode(bytearray('1 axxxabbbxxbxaaa 1', 'ASCII')))
+print(lzw.encode(bytearray('tres tristes tigres tragaban trigo en un trigal', 'ASCII')))
