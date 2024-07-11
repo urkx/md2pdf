@@ -63,7 +63,10 @@ Ref: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008
     10 0 R
     ```
     
-- Stream filters (no por el momento)
+- Stream filters. Must be specified in the stream dictionary if required
+```
+/Filter [/ASCII85Decode /LZWDecode]
+```
 
 ### Filters
 
