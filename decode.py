@@ -138,6 +138,7 @@ class FlateDecode:
             self.freq_list = []
             self.data = data
             self.trad_map = {}
+            self.order_criteria = lambda x: x.freq
 
         class ListItem:
             '''
@@ -192,7 +193,8 @@ class FlateDecode:
                     m[c] = m[c] + 1
 
             self.freq_list = [self.ListItem(x[0], x[1]) for x in m.items()]
-            self.freq_list = sorted(self.freq_list, key=lambda x: x.freq)
+            # Sort the items list by frequency in ascending order
+            self.freq_list = sorted(self.freq_list, key=self.order_criteria)
                 
         def build_tree(self):
             '''
@@ -202,9 +204,9 @@ class FlateDecode:
                 TODO: optimize data structures (Node, ListItem).
             '''
             while len(self.freq_list) > 1:
-                
-                a = self.freq_list.pop(0) # Removes the node a entry from the map
-                b = self.freq_list.pop(0) # Removes the node b entry from the map
+                # List of items is sorted by frequency in ascending order, so we take the first 2 elements
+                a = self.freq_list.pop(0)
+                b = self.freq_list.pop(0)
 
                 a_label = ""
                 b_label = ""
@@ -228,7 +230,8 @@ class FlateDecode:
                 # insert new item in list
                 
                 self.freq_list.append(newItem)
-                self.freq_list = sorted(self.freq_list, key=lambda x: x.freq)
+                # Sort again the list by frequency in ascending order
+                self.freq_list = sorted(self.freq_list, key=self.order_criteria)
 
         def create_codes(self, node: Node, val: str, huff: str, d: dict):
             '''
