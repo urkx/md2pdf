@@ -179,6 +179,9 @@ class FlateDecode:
             
             def __repr__(self) -> str:
                 return f'{self.label}: {self.left} - {self.right}'
+            
+            def is_leaf(self) -> bool:
+                return self.left is None and self.right is None
         
 
         def load_freq_map(self) -> None:
@@ -256,7 +259,6 @@ class FlateDecode:
                     self.create_codes(node.right, newVal, '1', d)
 
             if(not node.left and not node.right):
-                print(f"{node.label} -> {newVal}")
                 d[node.label] = newVal
         
         def code(self) -> str:
@@ -271,8 +273,36 @@ class FlateDecode:
             res = ''
             for c in self.data:
                 res = res + self.trad_map[c]
-            return res               
+            return res
+        
+        def decode(self, data: str) -> str:
+            '''
+                Decodes the input data traveling it and the Huffman tree.
 
+                Input:
+                    - data: Huffman encoded data
+            '''
+            res = ''
+            act_node = self.freq_list[0].item # Initial actual node is root node
+            for c in data:
+                if c == '0':
+                    branch = act_node.left
+                    if type(branch) == self.ListItem:
+                        act_node = act_node.left.item
+                    else:
+                        act_node = act_node.left
+                else:
+                    branch = act_node.right
+                    if type(branch) == self.ListItem:
+                        act_node = act_node.right.item
+                    else:
+                        act_node = act_node.right
+
+                if type(act_node) == self.Node and act_node.is_leaf():
+                    res = res + act_node.label
+                    act_node = self.freq_list[0].item
+            return res
+                
 class Utils:
     '''
         Static utils methods
@@ -317,4 +347,9 @@ s = 'tres tristes tigres tragaban trigo en un trigal'
 huff = FlateDecode.Huffman(s)
 huff.load_freq_map()
 huff.build_tree()
-print(huff.code())
+c = huff.code()
+d = huff.decode(c)
+
+print(f"Sample data: {s}")
+print(f"Huffman encoded data: {c}")
+print(f"Decoded data: {d}")
