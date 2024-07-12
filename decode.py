@@ -124,24 +124,39 @@ class FlateDecode:
 
     class Huffman:
         '''
-            TODO: Implement Huffman encoding
+            Huffman encoding implementation.
+
+            Params:
+                - data: data to encode.
+
+            Internal params:
+                - data: original data to encode.
+                - freq_list: list that contains all uniques characters in data and its frequency ordered by the frequency.
+                - trad_map: map that contains all uniques characters in data and its assigned code.
         '''
         def __init__(self, data):
-            self.freq_map = {}
+            self.freq_list = []
             self.data = data
+            self.trad_map = {}
 
-        def load_freq_map(self) -> None:
+        class ListItem:
             '''
-                Creates a map of frequencies for the characters of the input.
+                Items that stores freq_list
 
-                Input:
-                String to encode
+                Params:
+                    - item: value to store
+                    - freq: frequency of the item
             '''
-            for c in self.data:
-                if c not in self.freq_map:
-                    self.freq_map[c] = 1
-                else:
-                    self.freq_map[c] = self.freq_map[c] + 1
+            def __init__(self, item, freq):
+                self.item = item
+                self.freq = freq
+
+            def __str__(self) -> str:
+                return f'[{self.item}: {self.freq}]'
+            
+            def __repr__(self) -> str:
+                return f'[{self.item}: {self.freq}]'
+
         class Node:
             '''
                 Internal Huffman node.
@@ -163,75 +178,96 @@ class FlateDecode:
             
             def __repr__(self) -> str:
                 return f'{self.label}: {self.left} - {self.right}'
+        
 
+        def load_freq_map(self) -> None:
+            '''
+                Creates a sorted list of frequencies for the original data.
+            '''
+            m = {}
+            for c in self.data:
+                if c not in m:
+                    m[c] = 1
+                else:
+                    m[c] = m[c] + 1
+
+            self.freq_list = [self.ListItem(x[0], x[1]) for x in m.items()]
+            self.freq_list = sorted(self.freq_list, key=lambda x: x.freq)
+                
         def build_tree(self):
             '''
                 Creates the Huffman tree from the frequencies map.
                 The result is the frequencies map containing only one entry, the root node, and its frequency.
 
-                TODO: optimize minimums search.
+                TODO: optimize data structures (Node, ListItem).
             '''
-            while len(self.freq_map) > 1:
-                a = None
-                af = 0
-                b = None
-                bf = 0
+            while len(self.freq_list) > 1:
                 
-                # Search first min
-                for entry in self.freq_map.items():
-                    if af != 0 and entry[1] < af:
-                        af = entry[1]
-                        a = entry[0]
-                    elif af == 0:
-                        af = entry[1]
-                        a = entry[0]
-                # Search second min
-                for entry in self.freq_map.items():
-                    if entry[0] != a:
-                        if bf != 0 and entry[1] <= bf:
-                            bf = entry[1]
-                            b = entry[0]
-                        elif bf == 0:
-                            bf = entry[1]
-                            b = entry[0]
-                
-                self.freq_map.pop(a) # Removes the node a entry from the map
-                self.freq_map.pop(b) # Removes the node b entry from the map
+                a = self.freq_list.pop(0) # Removes the node a entry from the map
+                b = self.freq_list.pop(0) # Removes the node b entry from the map
 
                 a_label = ""
                 b_label = ""
-                if type(a) == self.Node:
-                    a_label = a.label
-                elif type(a) == str:
-                    a_label = a
-                    a = self.Node(a, af)
+                af = a.freq
+                bf = b.freq
 
-                if type(b) == self.Node:
-                    b_label = b.label
-                elif type(b) == str:
-                    b_label = b
-                    b = self.Node(b, bf)
+                if type(a.item) == self.Node:
+                    a_label = a.item.label
+                elif type(a.item) == str:
+                    a_label = a.item
+                    a = self.Node(a.item, af)
+
+                if type(b.item) == self.Node:
+                    b_label = b.item.label
+                elif type(b.item) == str:
+                    b_label = b.item
+                    b = self.Node(b.item, bf)
+
+                newNode = self.Node(a_label+b_label, af+bf, a, b)
+                newItem = self.ListItem(newNode, newNode.freq)
+                # insert new item in list
                 
-                self.freq_map[self.Node(a_label+b_label, af+bf, a, b)] = af+bf
+                self.freq_list.append(newItem)
+                self.freq_list = sorted(self.freq_list, key=lambda x: x.freq)
 
         def create_codes(self, node: Node, val: str, huff: str, d: dict):
+            '''
+                Process all the nodes of the tree and generates its codes
+
+                Params:
+                    - node: Node to process.
+                    - val: code generated previously.
+                    - huff: new bit to add to the code. If the new node to process is left, val = 0. Else, val = 1.
+                    - d: map to store the codes and its character.
+            '''
             newVal = val + huff
             if(node.left):
-                self.create_codes(node.left, newVal, '0', d)
+                if type(node.left) == self.ListItem:
+                    self.create_codes(node.left.item, newVal, '0', d)
+                elif type(node.left) == self.Node:
+                    self.create_codes(node.left, newVal, '0', d)
             if(node.right):
-                self.create_codes(node.right, newVal, '1', d)
+                if type(node.right) == self.ListItem:
+                    self.create_codes(node.right.item, newVal, '1', d)
+                elif type(node.right) == self.Node:
+                    self.create_codes(node.right, newVal, '1', d)
 
             if(not node.left and not node.right):
                 print(f"{node.label} -> {newVal}")
                 d[node.label] = newVal
         
         def code(self) -> str:
-            root = [x for x in self.freq_map.items()][0][0]
-            d = {}
-            self.create_codes(root, '', '', d)
+            '''
+                Initialize the trad_map and invokes create_codes.
+
+                Returns encoding of the original data.
+            '''
+            root = self.freq_list[0]
+            self.trad_map = {}
+            self.create_codes(root.item, '', '', self.trad_map)
             res = ''
             for c in self.data:
-                res = res + d[c]
+                res = res + self.trad_map[c]
             return res               
 
 class Utils:
@@ -275,9 +311,7 @@ enc = lzw.encode(bytearray('tres tristes tigres tragaban trigo en un trigal', 'A
 # print(lzw.decode(enc))
 
 s = 'tres tristes tigres tragaban trigo en un trigal'
-print(f'Sample data: {s}')
 huff = FlateDecode.Huffman('tres tristes tigres tragaban trigo en un trigal')
 huff.load_freq_map()
 huff.build_tree()
-print('Huffman coding:')
 print(huff.code())
