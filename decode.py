@@ -215,13 +215,13 @@ class FlateDecode:
                     a_label = a.item.label
                 elif type(a.item) == str:
                     a_label = a.item
-                    a = self.Node(a.item, af)
+                    a = self.Node(a_label, af)
 
                 if type(b.item) == self.Node:
                     b_label = b.item.label
                 elif type(b.item) == str:
                     b_label = b.item
-                    b = self.Node(b.item, bf)
+                    b = self.Node(b_label, bf)
 
                 newNode = self.Node(a_label+b_label, af+bf, a, b)
                 newItem = self.ListItem(newNode, newNode.freq)
@@ -311,7 +311,7 @@ enc = lzw.encode(bytearray('tres tristes tigres tragaban trigo en un trigal', 'A
 # print(lzw.decode(enc))
 
 s = 'tres tristes tigres tragaban trigo en un trigal'
-huff = FlateDecode.Huffman('tres tristes tigres tragaban trigo en un trigal')
+huff = FlateDecode.Huffman(s)
 huff.load_freq_map()
 huff.build_tree()
 print(huff.code())
