@@ -126,17 +126,18 @@ class FlateDecode:
         '''
             TODO: Implement Huffman encoding
         '''
-        def __init__(self):
+        def __init__(self, data):
             self.freq_map = {}
+            self.data = data
 
-        def load_freq_map(self, data: str) -> None:
+        def load_freq_map(self) -> None:
             '''
                 Creates a map of frequencies for the characters of the input.
 
                 Input:
                 String to encode
             '''
-            for c in data:
+            for c in self.data:
                 if c not in self.freq_map:
                     self.freq_map[c] = 1
                 else:
@@ -213,20 +214,25 @@ class FlateDecode:
                 
                 self.freq_map[self.Node(a_label+b_label, af+bf, a, b)] = af+bf
 
-        def process_node(self, node: Node, val: str, huff: str):
+        def create_codes(self, node: Node, val: str, huff: str, d: dict):
             newVal = val + huff
             if(node.left):
-                self.process_node(node.left, newVal, '0')
+                self.create_codes(node.left, newVal, '0', d)
             if(node.right):
-                self.process_node(node.right, newVal, '1')
+                self.create_codes(node.right, newVal, '1', d)
 
             if(not node.left and not node.right):
                 print(f"{node.label} -> {newVal}")
+                d[node.label] = newVal
         
-        def create_codes(self):
+        def code(self) -> str:
             root = [x for x in self.freq_map.items()][0][0]
-            self.process_node(root, '', '')
-                
+            d = {}
+            self.create_codes(root, '', '', d)
+            res = ''
+            for c in self.data:
+                res = res + d[c]
+            return res               
 
 class Utils:
     '''
@@ -268,7 +274,10 @@ enc = lzw.encode(bytearray('tres tristes tigres tragaban trigo en un trigal', 'A
 # print(enc)
 # print(lzw.decode(enc))
 
-huff = FlateDecode.Huffman()
-huff.load_freq_map('tres tristes tigres tragaban trigo en un trigal')
+s = 'tres tristes tigres tragaban trigo en un trigal'
+print(f'Sample data: {s}')
+huff = FlateDecode.Huffman('tres tristes tigres tragaban trigo en un trigal')
+huff.load_freq_map()
 huff.build_tree()
-huff.create_codes()
+print('Huffman coding:')
+print(huff.code())
