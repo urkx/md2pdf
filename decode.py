@@ -329,27 +329,3 @@ class Utils:
             Returns 8-bit binary representation of a character
         '''
         return f'{ord(data):08b}'
-
-t = 'hola'
-te = ASCII85Decode.encode(bytes(t, 'ASCII'))
-td = ASCII85Decode.decode(te)
-
-# print(te)
-# print(td.decode('ASCII'))
-# print(Utils.char_to_bin('a'))
-
-lzw = LZWDecode()
-enc = lzw.encode(bytearray('tres tristes tigres tragaban trigo en un trigal', 'ASCII'))
-# print(enc)
-# print(lzw.decode(enc))
-
-s = 'tres tristes tigres tragaban trigo en un trigal'
-huff = FlateDecode.Huffman(s)
-huff.load_freq_map()
-huff.build_tree()
-c = huff.code()
-d = huff.decode(c)
-
-print(f"Sample data: {s}")
-print(f"Huffman encoded data: {c}")
-print(f"Decoded data: {d}")
