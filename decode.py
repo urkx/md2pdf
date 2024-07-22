@@ -263,10 +263,12 @@ class FlateDecode:
         
         def code(self) -> str:
             '''
-                Initialize the trad_map and invokes create_codes.
+                Build Huffman tree, initialize the trad_map and invokes create_codes.
 
                 Returns encoding of the original data.
             '''
+            self.load_freq_map()
+            self.build_tree()
             root = self.freq_list[0]
             self.trad_map = {}
             self.create_codes(root.item, '', '', self.trad_map)

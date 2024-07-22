@@ -30,8 +30,6 @@ class TestHuffmanDecode(unittest.TestCase):
     def test_decode(self):
         test = 'tres tristes tigres tragaban trigo en un trigal'
         huff = decode.FlateDecode.Huffman(test)
-        huff.load_freq_map()
-        huff.build_tree()
         c = huff.code()
         d = huff.decode(c)
         self.assertEqual(d,
