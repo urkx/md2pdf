@@ -118,13 +118,23 @@ class FlateDecode:
     class LZ77:
         '''
             TODO: Implement LZ77 algorithm
+
+            Params:
+                - data: data to encode.
+                - win_size: size of search buffer
+
+            Internal params:
+                - output: list which stores output triplets
         '''
         def __init__(self, data: str, win_size: int):
             self.data = data
             self.win_size = win_size
             self.output: list = []
 
-        class Packet:
+        class Triplet:
+            '''
+                Triplet stored in the output
+            '''
             def __init__(self, distance: int, length: int, char: str):
                 self.distance = distance
                 self.length = length
@@ -169,7 +179,7 @@ class FlateDecode:
                 
                 if m == '': c = self.data[wp]   # if not match found, character is the pointed by wp
                 # check if lookahead buffer is at the end of data and its
-                self.output.append(self.Packet(d, l, c))
+                self.output.append(self.Triplet(d, l, c))
                 print(self.output)
                 wp = wp + dwp
 
