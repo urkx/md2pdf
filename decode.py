@@ -122,14 +122,10 @@ class FlateDecode:
             Params:
                 - data: data to encode.
                 - win_size: size of search buffer
-
-            Internal params:
-                - output: list which stores output triplets
         '''
         def __init__(self, data: str, win_size: int):
             self.data = data
             self.win_size = win_size
-            self.output: list = []
 
         class Triplet:
             '''
@@ -144,6 +140,7 @@ class FlateDecode:
                 return f"[ {self.distance}, {self.length}, {self.char} ]"
 
         def code(self):
+            output = []
             # wp -> sliding window pointer
             # sp -> search pointer
             # lp -> lookahead pointer
@@ -176,12 +173,11 @@ class FlateDecode:
                         d = lp - x
                         dwp = (lp - wp) + 1
                         break
-                
                 if m == '': c = self.data[wp]   # if not match found, character is the pointed by wp
                 # check if lookahead buffer is at the end of data and its
-                self.output.append(self.Triplet(d, l, c))
-                print(self.output)
+                output.append(self.Triplet(d, l, c))
                 wp = wp + dwp
+            return output
 
 
     class Huffman:
@@ -428,5 +424,6 @@ class Utils:
 
         print(tree_code)
 
-lz = FlateDecode.LZ77('abcbbcbaaaaaa', 6)
-lz.code()
+lz = FlateDecode.LZ77('tres tristes tigres tragaban trigo en un trigal', 6)
+c = lz.code()
+print(c)
