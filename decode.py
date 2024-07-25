@@ -119,8 +119,60 @@ class FlateDecode:
         '''
             TODO: Implement LZ77 algorithm
         '''
-        def __init__(self):
-            pass
+        def __init__(self, data: str, win_size: int):
+            self.data = data
+            self.win_size = win_size
+            self.output: list = []
+
+        class Packet:
+            def __init__(self, distance: int, length: int, char: str):
+                self.distance = distance
+                self.length = length
+                self.char = char
+
+            def __repr__(self) -> str:
+                return f"[ {self.distance}, {self.length}, {self.char} ]"
+
+        def code(self):
+            # wp -> sliding window pointer
+            # sp -> search pointer
+            # lp -> lookahead pointer
+            wp = 0
+            while wp < len(self.data):
+                dwp = 1 # wp increment (delta)
+                '''
+                    STEP 1: Create search buffer
+                '''
+                sp = 0
+                lp = wp
+                search_buffer = ''
+                if wp > self.win_size: sp = wp - self.win_size
+                search_buffer = self.data[sp:wp]
+                '''
+                    STEP 2: Search match
+                '''
+                m = '' # match
+                d = 0 # distance
+                l = 0 # length
+                c = '' # char
+                for x in range(0, len(search_buffer)):
+                    if search_buffer[x] == self.data[lp]:
+                        m = m + search_buffer[x]
+                        lp = lp + 1
+                        if lp >= len(self.data): lp = len(self.data) - 1
+                    elif len(m) > 0: 
+                        c = self.data[lp]
+                        l = len(m)
+                        d = lp - x
+                        dwp = (lp - wp) + 1
+                        break
+                
+                if m == '': c = self.data[wp]   # if not match found, character is the pointed by wp
+                # check if lookahead buffer is at the end of data and its
+                self.output.append(self.Packet(d, l, c))
+                print(self.output)
+                wp = wp + dwp
+
 
     class Huffman:
         '''
@@ -331,3 +383,40 @@ class Utils:
             Returns 8-bit binary representation of a character
         '''
         return f'{ord(data):08b}'
+    
+    @staticmethod
+    def dem322():
+        '''
+            Example of the algorithm described in section 3.2.2
+            https://datatracker.ietf.org/doc/html/rfc1951#section-3
+        '''
+        # ABCDEFGH -> (3, 3, 3, 3, 3, 2, 4, 4)
+        SAMPLES = 8
+        tree_len = [3, 3, 3, 3, 3, 2, 4, 4]
+        tree_code = []
+        # Step 1
+        bl_count = {}
+        bl_count[1] = 0
+        bl_count[2] = 1
+        bl_count[3] = 5
+        bl_count[4] = 2
+
+        # Step 2
+        next_code = {}
+        code = 0
+        bl_count[0] = 0
+        for bits in range(1, 5):
+            code = (code + bl_count[bits-1]) << 1
+            next_code[bits] = code
+        print(next_code)
+        # Step 3
+        for n in range(0, SAMPLES):
+            l = tree_len[n]
+            if l != 0:
+                tree_code.append(next_code[l])
+                next_code[l] = next_code[l] + 1
+
+        print(tree_code)
+
+lz = FlateDecode.LZ77('abcbbcbaaaaaa', 6)
+lz.code()
