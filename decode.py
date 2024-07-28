@@ -140,6 +140,39 @@ class FlateDecode:
 
             def __repr__(self) -> str:
                 return f"[ {self.distance}, {self.length}, {self.char} ]"
+            
+        def search_longets_match(self, search_buffer: str, sp: int, lp: int, wp: int):
+            match_list = []
+            actual_match = None
+            m = ''
+            matching = False
+
+            x =  sp
+            while x < len(search_buffer):
+                if search_buffer[x] == self.data[lp]:
+                        m = m + search_buffer[x]
+                        if actual_match is None:
+                            actual_match = self.Triplet(wp - x, len(m), '')
+                        else:
+                            # actual_match.distance = actual_match.distance + 1
+                            actual_match.length = len(m)
+                        # d = lp - (sp + x)
+                        d = wp - x
+                        lp = lp + 1
+                        if lp >= len(self.data): lp = len(self.data) - 1
+                        if not matching: matching = True
+                        x = x + 1
+                elif matching:
+                        lp = wp
+                        l = len(m)
+                        d = lp - (sp + x)
+                        match_list.append(actual_match)
+                        m = ''
+                        matching = False
+                        actual_match = None
+                else:
+                    x = x + 1
+            return match_list, actual_match
 
         def code(self):
             output = []
@@ -148,7 +181,6 @@ class FlateDecode:
             # lp -> lookahead pointer
             wp = 0
             while wp < len(self.data):
-                dwp = 1 # wp increment (delta)
                 '''
                     STEP 1: Create search buffer
                 '''
@@ -160,43 +192,22 @@ class FlateDecode:
                 '''
                     STEP 2: Search longest match
                 '''
-                m = '' # match
-                d = 0 # distance
-                l = 0 # length
-                c = '' # char
-                matching = False
-                match_list = []
-                actual_match = None
-                for x in range(0, len(search_buffer)):
-                    if search_buffer[x] == self.data[lp]:
-                        m = m + search_buffer[x]
-                        if actual_match is None:
-                            actual_match = self.Triplet(wp - x, len(m), '')
-                        else:
-                            actual_match.distance = actual_match.distance + 1
-                            actual_match.length = len(m)
-                        # d = lp - (sp + x)
-                        d = wp - x
-                        lp = lp + 1
-                        if lp >= len(self.data): lp = len(self.data) - 1
-                        if not matching: matching = True
-                    elif matching:
-                        lp = wp
-                        l = len(m)
-                        d = lp - (sp + x)
-                        match_list.append(actual_match)
-                        m = ''
-                        matching = False
-                        actual_match = None
-                # if m == '': match_list.append(self.Triplet(0, 0, self.data[wp])) # if not match found, character is the pointed by wp
+                match_list, actual_match = self.search_longets_match(search_buffer, sp, lp, wp)
+                '''
+                    STEP 3: 
+                        If matches found, use the one with longest length (L) and increase WP + L.
+                        Else, output actual byte and increase WP + 1
+
+                '''
+                dwp = 1
                 if actual_match is None and len(match_list) == 0: 
                     match_list.append(self.Triplet(0, 0, self.data[wp])) # if not match found, character is the pointed by wp
                 elif actual_match is not None:
                     match_list.append(actual_match)
-                # check if lookahead buffer is at the end of data and its
-                match_list.sort(key=lambda x: x.distance)
-                # output.append(self.Triplet(d, l, c))
+                    dwp = actual_match.length
+                match_list.sort(key=lambda x: x.length, reverse=True) # order matches by shortest backwards distance
                 output.append(match_list[0])
+                if match_list[0].length > 0: dwp = match_list[0].length
                 wp = wp + dwp
             return output
 
