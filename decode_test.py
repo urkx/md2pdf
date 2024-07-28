@@ -36,6 +36,12 @@ class TestHuffmanDecode(unittest.TestCase):
                          test,
                          "Decoding failed")
 
+class TestLZ77(unittest.TestCase):
+    def test_codec(self):
+        test = 'tres tristes tigres tragaban trigo en un trigal'
+        lz = decode.FlateDecode.LZ77(test, 6)
+        c = lz.code()
+        self.assertEqual(test, lz.decode(c), "LZ77 co-dec failed")
         
 if __name__ == "__main__":
     unittest.main()

@@ -117,7 +117,9 @@ class FlateDecode:
     '''
     class LZ77:
         '''
-            TODO: Implement LZ77 algorithm
+            LZ77 implementation as explained in Microsoft documentation.
+            https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wusp/fb98aa28-5cd7-407f-8869-a6cef1ff1ccb
+
 
             Params:
                 - data: data to encode.
@@ -138,15 +140,41 @@ class FlateDecode:
 
             def __repr__(self) -> str:
                 return f"[ {self.distance}, {self.length}, {self.char} ]"
+            
+        def search_longets_match(self, search_buffer: str, sp: int, lp: int, wp: int):
+            match_list = []
+            actual_match = None
+            m = ''
+            matching = False
+            x =  sp
+            while x < len(search_buffer):
+                if search_buffer[x] == self.data[lp]:
+                        m = m + search_buffer[x]
+                        if actual_match is None:
+                            actual_match = self.Triplet(wp - x, len(m), '')
+                        else:
+                            actual_match.length = len(m)
+                        lp = lp + 1
+                        if lp >= len(self.data): lp = len(self.data) - 1
+                        if not matching: matching = True
+                        x = x + 1
+                elif matching:
+                        lp = wp
+                        match_list.append(actual_match)
+                        m = ''
+                        matching = False
+                        actual_match = None
+                else:
+                    x = x + 1
+            return match_list, actual_match
 
-        def code(self):
+        def code(self) -> list[Triplet]:
             output = []
             # wp -> sliding window pointer
             # sp -> search pointer
             # lp -> lookahead pointer
             wp = 0
             while wp < len(self.data):
-                dwp = 1 # wp increment (delta)
                 '''
                     STEP 1: Create search buffer
                 '''
@@ -156,27 +184,42 @@ class FlateDecode:
                 if wp > self.win_size: sp = wp - self.win_size
                 search_buffer = self.data[sp:wp]
                 '''
-                    STEP 2: Search match
+                    STEP 2: Search longest match
                 '''
-                m = '' # match
-                d = 0 # distance
-                l = 0 # length
-                c = '' # char
-                for x in range(0, len(search_buffer)):
-                    if search_buffer[x] == self.data[lp]:
-                        m = m + search_buffer[x]
-                        lp = lp + 1
-                        if lp >= len(self.data): lp = len(self.data) - 1
-                    elif len(m) > 0: 
-                        c = self.data[lp]
-                        l = len(m)
-                        d = lp - x
-                        dwp = (lp - wp) + 1
-                        break
-                if m == '': c = self.data[wp]   # if not match found, character is the pointed by wp
-                # check if lookahead buffer is at the end of data and its
-                output.append(self.Triplet(d, l, c))
+                match_list, actual_match = self.search_longets_match(search_buffer, sp, lp, wp)
+                '''
+                    STEP 3: 
+                        If matches found, use the one with longest length (L) and increase WP + L.
+                        Else, output actual byte and increase WP + 1
+
+                '''
+                dwp = 1
+                if actual_match is None and len(match_list) == 0: 
+                    match_list.append(self.Triplet(0, 0, self.data[wp])) # if not match found, character is the pointed by wp
+                elif actual_match is not None:
+                    match_list.append(actual_match)
+                    dwp = actual_match.length
+                match_list.sort(key=lambda x: x.length, reverse=True) # order matches by longest length
+                output.append(match_list[0])
+                if match_list[0].length > 0: dwp = match_list[0].length
                 wp = wp + dwp
+            return output
+        
+        def decode(self, input: list[Triplet]):
+            '''
+                Params:
+                - Input: List of :py:class:`Triplet` to decode
+            '''
+            output = ''
+            for i in input:
+                if i.char != '':
+                    output = output + i.char
+                else:
+                    d = i.distance
+                    l = i.length
+                    actual_pointer = len(output)
+                    new_data = output[actual_pointer - d: (actual_pointer - d) + l]
+                    output = output + new_data
             return output
 
 
@@ -423,7 +466,3 @@ class Utils:
                 next_code[l] = next_code[l] + 1
 
         print(tree_code)
-
-lz = FlateDecode.LZ77('tres tristes tigres tragaban trigo en un trigal', 6)
-c = lz.code()
-print(c)
