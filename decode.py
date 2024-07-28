@@ -146,7 +146,6 @@ class FlateDecode:
             actual_match = None
             m = ''
             matching = False
-
             x =  sp
             while x < len(search_buffer):
                 if search_buffer[x] == self.data[lp]:
@@ -154,18 +153,13 @@ class FlateDecode:
                         if actual_match is None:
                             actual_match = self.Triplet(wp - x, len(m), '')
                         else:
-                            # actual_match.distance = actual_match.distance + 1
                             actual_match.length = len(m)
-                        # d = lp - (sp + x)
-                        d = wp - x
                         lp = lp + 1
                         if lp >= len(self.data): lp = len(self.data) - 1
                         if not matching: matching = True
                         x = x + 1
                 elif matching:
                         lp = wp
-                        l = len(m)
-                        d = lp - (sp + x)
                         match_list.append(actual_match)
                         m = ''
                         matching = False
@@ -174,7 +168,7 @@ class FlateDecode:
                     x = x + 1
             return match_list, actual_match
 
-        def code(self):
+        def code(self) -> list[Triplet]:
             output = []
             # wp -> sliding window pointer
             # sp -> search pointer
@@ -209,6 +203,23 @@ class FlateDecode:
                 output.append(match_list[0])
                 if match_list[0].length > 0: dwp = match_list[0].length
                 wp = wp + dwp
+            return output
+        
+        def decode(self, input: list[Triplet]):
+            '''
+                Params:
+                - Input: List of :py:class:`Triplet` to decode
+            '''
+            output = ''
+            for i in input:
+                if i.char != '':
+                    output = output + i.char
+                else:
+                    d = i.distance
+                    l = i.length
+                    actual_pointer = len(output)
+                    new_data = output[actual_pointer - d: (actual_pointer - d) + l]
+                    output = output + new_data
             return output
 
 
@@ -455,7 +466,3 @@ class Utils:
                 next_code[l] = next_code[l] + 1
 
         print(tree_code)
-
-lz = FlateDecode.LZ77('AABCBBABC', 6)
-c = lz.code()
-print(c)
