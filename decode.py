@@ -205,7 +205,7 @@ class FlateDecode:
                 elif actual_match is not None:
                     match_list.append(actual_match)
                     dwp = actual_match.length
-                match_list.sort(key=lambda x: x.length, reverse=True) # order matches by shortest backwards distance
+                match_list.sort(key=lambda x: x.length, reverse=True) # order matches by longest length
                 output.append(match_list[0])
                 if match_list[0].length > 0: dwp = match_list[0].length
                 wp = wp + dwp
