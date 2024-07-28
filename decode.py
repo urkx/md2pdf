@@ -141,7 +141,16 @@ class FlateDecode:
             def __repr__(self) -> str:
                 return f"[ {self.distance}, {self.length}, {self.char} ]"
             
-        def search_longets_match(self, search_buffer: str, sp: int, lp: int, wp: int):
+        def search_longets_match(self, search_buffer: str, sp: int, lp: int, wp: int) -> tuple[list[Triplet], Triplet | None]:
+            '''
+                Search for the longest match in the search buffer for the lookahead buffer.
+
+                Params:
+                    - search_buffer: Buffer where to find the matches.
+                    - sp: Begin of the search_buffer in the original data.
+                    - lp: Lookahead buffer pointer.
+                    - wp: Pointer to byte processing
+            '''
             match_list = []
             actual_match = None
             m = ''
@@ -169,6 +178,10 @@ class FlateDecode:
             return match_list, actual_match
 
         def code(self) -> list[Triplet]:
+            '''
+                Encodes data using LZ77 algorithm.
+                Return a list of :py:class:`Triplet`
+            '''
             output = []
             # wp -> sliding window pointer
             # sp -> search pointer
@@ -235,7 +248,7 @@ class FlateDecode:
                 - freq_list: list that contains all uniques characters in data and its frequency ordered by the frequency.
                 - trad_map: map that contains all uniques characters in data and its assigned code.
         '''
-        def __init__(self, data):
+        def __init__(self, data: str):
             self.freq_list = []
             self.data = data
             self.trad_map = {}
@@ -300,7 +313,7 @@ class FlateDecode:
             # Sort the items list by frequency in ascending order
             self.freq_list = sorted(self.freq_list, key=self.order_criteria)
                 
-        def build_tree(self):
+        def build_tree(self) -> None:
             '''
                 Creates the Huffman tree from the frequencies map.
                 The result is the frequencies map containing only one entry, the root node, and its frequency.
@@ -337,7 +350,7 @@ class FlateDecode:
                 # Sort again the list by frequency in ascending order
                 self.freq_list = sorted(self.freq_list, key=self.order_criteria)
 
-        def create_codes(self, node: Node, val: str, huff: str, d: dict):
+        def create_codes(self, node: Node, val: str, huff: str, d: dict) -> None:
             '''
                 Process all the nodes of the tree and generates its codes
 
