@@ -30,22 +30,23 @@ class Array(PdfObject):
     def value(self) -> str:
         res = ''
         for x in self.val:
-            res += x
+            if type(x) != type(str):
+                if type(x) == type(PdfObject):
+                    res += x.value()
+                else:
+                    res += str(x)
+            else:
+                res += x
             res += ' '
         res = res[:-1]
         return f'[{res}]'
     
 class Dictionary(PdfObject):
-    def __init__(self, val: dict) -> None:
+    def __init__(self, val: dict[PdfObject, PdfObject]) -> None:
         self.val = val
     
-    def getDictItemValue(self, item):
-        if type(item) == type(PdfObject):
-            return item.value()
-        if type(item) == type(str):
-            return item
-        else:
-            return str(item)
+    def getDictItemValue(self, item: PdfObject) -> str:
+        return item.value()
 
     def value(self) -> str:
         res = '<<'
@@ -76,13 +77,15 @@ class IndirectObject:
 class Stream:
     class StreamDictionary(Dictionary):
         def __init__(self, l: int) -> None:
-            super().__init__({'/Length': l})
+            super().__init__({Name('Length'): Integer(l)})
 
     def __init__(self, d: StreamDictionary, s: str) -> None:
+        '''
         if '/Length' not in d.val:
             raise Exception('Stream Length must exist in stream dictionary')
         if d.val['/Length'] != len(s):
             raise Exception('Stream data length not match with Length value')
+        '''
         self.d = d
         self.s = s
     
@@ -110,7 +113,10 @@ io = IndirectObject(10, 0, d)
 
 streamDict = Stream.StreamDictionary(2)
 stream = Stream(streamDict, "AA")
+'''
 indirectStream = IndirectObject(1, 0, stream)
+'''
 
-print(indirectStream.value())
+print(stream.value())
+# print(indirectStream.value())
 

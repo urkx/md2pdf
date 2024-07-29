@@ -1,5 +1,5 @@
 import unittest
-import decode
+from md2pdf.decode import decode
 
 class TestLZWDecode(unittest.TestCase):
     def test_encode(self):
