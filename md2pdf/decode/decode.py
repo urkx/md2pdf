@@ -114,6 +114,14 @@ class FlateDecode:
         Decompress data using deflate algorithm (RFC 1951).
         Ref: https://datatracker.ietf.org/doc/html/rfc1951
 
+        From zlib source code (deflate.c -> deflate_slow) block processing is:
+        - fill window
+        - find match
+        - flush block: 
+            - build length tree
+            - build distance tree
+            - build bit lenght tree
+            - gen codes
     '''
     class LZ77:
         '''
@@ -451,6 +459,9 @@ class Utils:
         '''
             Example of the algorithm described in section 3.2.2
             https://datatracker.ietf.org/doc/html/rfc1951#section-3
+
+            Dynamic Huffman codes generation(?)
+            In zlib code: trees.c -> gen_codes
         '''
         # ABCDEFGH -> (3, 3, 3, 3, 3, 2, 4, 4)
         SAMPLES = 8
