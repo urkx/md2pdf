@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Union
 from dataclasses import dataclass
 from block import Block
+from ctypes import c_uint8
 
 class CompressionLevel(Enum):
     FASTEST = 0
@@ -11,10 +12,10 @@ class CompressionLevel(Enum):
 
 @dataclass
 class DataHeader:
-    compression_method: int = 8         # 4 bits
-    compression_info: int               # 4 bits. contains the base-2 logarithm of the LZ77 window size minus 8
-    check_bits: int                     # 5 bits
-    preset_dictionary: int              # 1 bit
+    compression_method: c_uint8 = 8     # 4 bits
+    compression_info: c_uint8           # 4 bits. contains the base-2 logarithm of the LZ77 window size minus 8
+    check_bits: c_uint8                 # 5 bits
+    preset_dictionary: bool             # 1 bit
     compression_level: CompressionLevel # 2 bits
 
 @dataclass
