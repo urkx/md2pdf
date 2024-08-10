@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 class Huffman:
         '''
             Huffman encoding implementation.
@@ -58,7 +60,11 @@ class Huffman:
             
             def is_leaf(self) -> bool:
                 return self.left is None and self.right is None
-        
+            
+        @dataclass
+        class HuffData:
+            code: str
+            code_length: int
 
         def load_freq_map(self) -> None:
             '''
@@ -112,7 +118,7 @@ class Huffman:
                 # Sort again the list by frequency in ascending order
                 self.freq_list = sorted(self.freq_list, key=self.order_criteria)
 
-        def create_codes(self, node: Node, val: str, huff: str, d: dict) -> None:
+        def create_codes(self, node: Node, val: str, huff: str, d: dict[HuffData]) -> None:
             '''
                 Process all the nodes of the tree and generates its codes
 
@@ -135,7 +141,7 @@ class Huffman:
                     self.create_codes(node.right, newVal, '1', d)
 
             if(not node.left and not node.right):
-                d[node.label] = newVal
+                d[node.label] = Huffman.HuffData(newVal, len(newVal))
         
         def code(self) -> str:
             '''
@@ -150,7 +156,7 @@ class Huffman:
             self.create_codes(root.item, '', '', self.trad_map)
             res = ''
             for c in self.data:
-                res = res + self.trad_map[c]
+                res = res + self.trad_map[c].code
             return res
         
         def decode(self, data: str) -> str:
