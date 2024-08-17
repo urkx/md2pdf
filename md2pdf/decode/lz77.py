@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 class LZ77:
         '''
             LZ77 implementation as explained in Microsoft documentation.
@@ -11,6 +13,17 @@ class LZ77:
         def __init__(self, data: str, win_size: int):
             self.data = data
             self.win_size = win_size
+
+        @dataclass
+        class Pair:
+            """
+                Distance,length pair data
+            """
+            distance: int
+            length: int
+
+            def __repr__(self) -> str:
+                return f"[ {self.distance}, {self.length} ]"
 
         class Triplet:
             '''
@@ -60,12 +73,12 @@ class LZ77:
                     x = x + 1
             return match_list, actual_match
 
-        def code(self) -> list[Triplet]:
+        def code(self) -> list[Pair | str]:
             '''
                 Encodes data using LZ77 algorithm.
                 Return a list of :py:class:`Triplet`
             '''
-            output = []
+            buffered_output = []
             # wp -> sliding window pointer
             # sp -> search pointer
             # lp -> lookahead pointer
@@ -87,7 +100,6 @@ class LZ77:
                     STEP 3: 
                         If matches found, use the one with longest length (L) and increase WP + L.
                         Else, output actual byte and increase WP + 1
-
                 '''
                 dwp = 1
                 if actual_match is None and len(match_list) == 0: 
@@ -96,23 +108,23 @@ class LZ77:
                     match_list.append(actual_match)
                     dwp = actual_match.length
                 match_list.sort(key=lambda x: x.length, reverse=True) # order matches by longest length
-                output.append(match_list[0])
+                buffered_output.append(match_list[0])
                 if match_list[0].length > 0: dwp = match_list[0].length
                 wp = wp + dwp
+            output = [x.char if x.char != '' else self.Pair(distance=x.distance, length=x.length) for x in buffered_output]
             return output
         
-        def decode(self, input: list[Triplet]):
+        def decode(self, input: list[Pair | str]) -> str:
             '''
                 Params:
                 - Input: List of :py:class:`Triplet` to decode
             '''
             output = ''
             for i in input:
-                if i.char != '':
-                    output = output + i.char
+                if type(i) == str:
+                    output = output + i
                 else:
-                    d = i.distance
-                    l = i.length
+                    d, l = i.distance, i.length
                     actual_pointer = len(output)
                     new_data = output[actual_pointer - d: (actual_pointer - d) + l]
                     output = output + new_data
