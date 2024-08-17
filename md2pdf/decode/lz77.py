@@ -14,6 +14,8 @@ class LZ77:
             self.data = data
             self.win_size = win_size
 
+        MAX_WIN_SIZE_DEFLATE:int = 32 * 1024
+
         @dataclass
         class Pair:
             """
