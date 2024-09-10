@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from md2pdf.decode import lz77
+from md2pdf.decode import lz77, huffman
 
 class BlockType(Enum):
     UNCOMPRESSED    = 0
@@ -24,6 +24,10 @@ class Block:
         self.header = header
         self.raw_data = raw_data
 
-    def process(self) -> list[lz77.LZ77.Pair | str]:
+    def process(self) -> str:
         l = lz77.LZ77(self.raw_data, lz77.LZ77.MAX_WIN_SIZE_DEFLATE)
-        return l.code()
+        lz_encoded_data: list[str | lz77.LZ77.Pair] = l.code()
+        h = huffman.Huffman(lz_encoded_data)
+        return h.code()
+
+

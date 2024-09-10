@@ -75,6 +75,7 @@ class Huffman:
             m = {}
             for c in self.data:
                 if c not in m:
+                    if type(c) == lz77.LZ77.Pair: c = c.__repr__()
                     m[c] = 1
                 else:
                     m[c] = m[c] + 1
@@ -158,6 +159,7 @@ class Huffman:
             self.create_codes(root.item, '', '', self.trad_map)
             res = ''
             for c in self.data:
+                if type(c) == lz77.LZ77.Pair: c = c.__repr__()
                 res = res + self.trad_map[c].code
             return res
         
