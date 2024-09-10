@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from md2pdf.decode import lz77
+
 class Huffman:
         '''
             Huffman encoding implementation.
@@ -12,11 +14,11 @@ class Huffman:
                 - freq_list: list that contains all uniques characters in data and its frequency ordered by the frequency.
                 - trad_map: map that contains all uniques characters in data and its assigned code.
         '''
-        def __init__(self, data: str):
-            self.freq_list = []
+        def __init__(self, data: str | list[lz77.LZ77.Pair | str], freq_list: list = [], trad_map: dict = {}, order_criteria: any = lambda x: x.freq):
+            self.freq_list = freq_list
             self.data = data
-            self.trad_map = {}
-            self.order_criteria = lambda x: x.freq
+            self.trad_map = trad_map
+            self.order_criteria = order_criteria
 
         class ListItem:
             '''

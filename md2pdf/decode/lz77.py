@@ -24,8 +24,14 @@ class LZ77:
             distance: int
             length: int
 
+            def __eq__(self, value: object) -> bool:
+                return value and self.length == value.length and self.distance == value.distance
+
             def __repr__(self) -> str:
                 return f"[ {self.distance}, {self.length} ]"
+            
+            def __hash__(self) -> int:
+                return hash((self.length, self.distance))
 
         class Triplet:
             '''
