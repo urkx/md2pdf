@@ -44,7 +44,7 @@ class TestLZ77(unittest.TestCase):
         c = lz.code()
         self.assertEqual(test, lz.decode(c), "LZ77 co-dec failed")
 
-class TestDeflateBlock(unittest.TestCase):
+class TestDeflateBlockDynCompression(unittest.TestCase):
     def test_block_processing(self):
         test = 'tres tristes tigres tragaban trigo en un trigal'
         want = '0011000111010000100101010010110110001101011100111110000100011001010011101001010110110101111100011001110101101111100111011111011111000000010010'

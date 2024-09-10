@@ -24,10 +24,18 @@ class Block:
         self.header = header
         self.raw_data = raw_data
 
-    def process(self) -> str:
+    def dyn_process(self) -> str:
         l = lz77.LZ77(self.raw_data, lz77.LZ77.MAX_WIN_SIZE_DEFLATE)
         lz_encoded_data: list[str | lz77.LZ77.Pair] = l.code()
         h = huffman.Huffman(lz_encoded_data)
         return h.code()
+
+    def process(self) -> str:
+        match self.header.block_type:
+            case BlockType.DYN_COMPRESSION:
+                return self.dyn_process()
+            case _:
+                return 'NOT IMPLEMENTED'
+        
 
 
