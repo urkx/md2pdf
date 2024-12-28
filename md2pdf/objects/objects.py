@@ -101,22 +101,3 @@ class Stream:
 
         return res
 
-t = Name('Type')
-tv = Name('Example')
-st = Name('Subtype')
-stv = Name('Dictionary example')
-v = Name('Version')
-vv = Integer(12)
-
-d = Dictionary({t: tv, st: stv, v: vv})
-io = IndirectObject(10, 0, d)
-
-streamDict = Stream.StreamDictionary(2)
-stream = Stream(streamDict, "AA")
-'''
-indirectStream = IndirectObject(1, 0, stream)
-'''
-
-print(stream.value())
-# print(indirectStream.value())
-
